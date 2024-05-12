@@ -1,11 +1,16 @@
 import { Button, Form, Table } from "react-bootstrap";
 import "./App.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { nanoid } from "nanoid";
 import { FaTrash } from "react-icons/fa";
+import styled from "styled-components";
 
 const shops = ["Migros", "Teknosa", "Bim"];
 const categories = ["Elektronik", "Şarküteri", "Oyuncak", "Bakliyat", "Fırın"];
+
+const StyledTable = styled.td`
+  text-decoration: ${(props) => (props.isBought ? "line-through" : "none")};
+`;
 
 function App() {
   const [products, setProducts] = useState([]);
@@ -17,34 +22,58 @@ function App() {
   const [filteredCategory, setFilteredCategory] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
 
+  const [alertShown, setAlertShown] = useState(false);
+
+  useEffect(() => {
+    if (alertShown) {
+      alert("Shopping Completed!");
+    }
+  }, [alertShown]);
+
+  const handleToggleBought = (productId) => {
+    const updatedProducts = products.map((product) =>
+      product.id === productId
+        ? { ...product, isBought: !product.isBought }
+        : product
+    );
+    setProducts(updatedProducts);
+
+    if (!alertShown && updatedProducts.every((uP) => Boolean(uP.isBought))) {
+      setAlertShown(true);
+    }
+  };
+
   const handleAddProduct = () => {
-    const product = {
+    const newProduct = {
       id: nanoid(),
       name: productName,
       category: productCategory,
       shop: productShop,
-      isBought: false,
     };
-    setProducts([...products, product]);
+    setProducts([...products, newProduct]);
+    setProductName("");
+    setProductShop("");
+    setProductCategory("");
   };
 
-  const handleToggleBought = (productId) => {
-    const updatedProducts = products.map((product) =>
-      product.id === productId ? { ...product, isBought: !product.isBought } : product
+  const handleDeleteProduct = (productId) => {
+    const updatedProducts = products.filter(
+      (product) => product.id !== productId
     );
     setProducts(updatedProducts);
   };
 
-  const handleDeleteProduct = (productId) => {
-    const updatedProducts = products.filter((product) => product.id !== productId);
-    setProducts(updatedProducts);
-  };
-
   const filteredProducts = products.filter((product) => {
-    const nameMatch = product.name.toLowerCase().includes(filteredName.toLowerCase());
+    const nameMatch = product.name
+      .toLowerCase()
+      .includes(filteredName.toLowerCase());
     const shopMatch = product.shop === filteredShop || filteredShop === "";
-    const categoryMatch = product.category === filteredCategory || filteredCategory === "";
-    const statusMatch = filterStatus === "all" || (filterStatus === "bought" && product.isBought) || (filterStatus === "not-bought" && !product.isBought);
+    const categoryMatch =
+      product.category === filteredCategory || filteredCategory === "";
+    const statusMatch =
+      filterStatus === "all" ||
+      (filterStatus === "bought" && product.isBought) ||
+      (filterStatus === "not-bought" && !product.isBought);
     return nameMatch && shopMatch && categoryMatch && statusMatch;
   });
 
@@ -63,7 +92,11 @@ function App() {
           </Form.Group>
           <Form.Group controlId="productShop">
             <Form.Label>Shop</Form.Label>
-            <Form.Control as="select" value={productShop} onChange={(e) => setProductShop(e.target.value)}>
+            <Form.Control
+              as="select"
+              value={productShop}
+              onChange={(e) => setProductShop(e.target.value)}
+            >
               <option>Select Shop</option>
               {shops.map((shop, index) => (
                 <option key={index} value={shop}>
@@ -74,7 +107,11 @@ function App() {
           </Form.Group>
           <Form.Group controlId="productCategory">
             <Form.Label>Category</Form.Label>
-            <Form.Control as="select" value={productCategory} onChange={(e) => setProductCategory(e.target.value)}>
+            <Form.Control
+              as="select"
+              value={productCategory}
+              onChange={(e) => setProductCategory(e.target.value)}
+            >
               <option>Select Category</option>
               {categories.map((category, index) => (
                 <option key={index} value={category}>
@@ -83,7 +120,9 @@ function App() {
               ))}
             </Form.Control>
           </Form.Group>
-          <Button variant="primary" onClick={handleAddProduct}>Add Product</Button>
+          <Button variant="primary" onClick={handleAddProduct}>
+            Add Product
+          </Button>
         </Form>
       </div>
 
@@ -100,7 +139,11 @@ function App() {
           </Form.Group>
           <Form.Group controlId="filteredShop">
             <Form.Label>Filter by Shop</Form.Label>
-            <Form.Control as="select" value={filteredShop} onChange={(e) => setFilteredShop(e.target.value)}>
+            <Form.Control
+              as="select"
+              value={filteredShop}
+              onChange={(e) => setFilteredShop(e.target.value)}
+            >
               <option value="">All Shops</option>
               {shops.map((shop, index) => (
                 <option key={index} value={shop}>
@@ -111,7 +154,11 @@ function App() {
           </Form.Group>
           <Form.Group controlId="filteredCategory">
             <Form.Label>Filter by Category</Form.Label>
-            <Form.Control as="select" value={filteredCategory} onChange={(e) => setFilteredCategory(e.target.value)}>
+            <Form.Control
+              as="select"
+              value={filteredCategory}
+              onChange={(e) => setFilteredCategory(e.target.value)}
+            >
               <option value="">All Categories</option>
               {categories.map((category, index) => (
                 <option key={index} value={category}>
@@ -154,25 +201,38 @@ function App() {
         <Table striped bordered hover>
           <thead>
             <tr>
+              <th>ID</th>
               <th>Name</th>
               <th>Shop</th>
               <th>Category</th>
-              <th>Status</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             {filteredProducts.map((product) => (
-              <tr key={product.id} style={{ textDecoration: product.isBought ? 'line-through' : 'none' }}>
-                <td>{product.name}</td>
-                <td>{product.shop}</td>
-                <td>{product.category}</td>
-                <td>{product.isBought ? 'Bought' : 'Not Bought'}</td>
+              <tr key={product.id}>
+                <StyledTable isBought={product.isBought}>
+                  {product.id}
+                </StyledTable>
+                <StyledTable isBought={product.isBought}>
+                  {product.name}
+                </StyledTable>
+                <StyledTable isBought={product.isBought}>
+                  {product.shop}
+                </StyledTable>
+                <StyledTable isBought={product.isBought}>
+                  {product.category}
+                </StyledTable>
                 <td>
                   <Button onClick={() => handleToggleBought(product.id)}>
-                    {product.isBought ? 'Mark as Not Bought' : 'Mark as Bought'}
+                    {product.isBought ? "Mark as Not Bought" : "Mark as Bought"}
                   </Button>
-                  <Button variant="danger" onClick={() => handleDeleteProduct(product.id)}><FaTrash /></Button>
+                  <Button
+                    variant="danger"
+                    onClick={() => handleDeleteProduct(product.id)}
+                  >
+                    <FaTrash />
+                  </Button>
                 </td>
               </tr>
             ))}
