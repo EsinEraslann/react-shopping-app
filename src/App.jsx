@@ -79,7 +79,7 @@ function App() {
 
   return (
     <>
-      <div className="container">
+      <div className="container d-flex gap-5 justify-content-center">
         <Form>
           <Form.Group controlId="productName">
             <Form.Label>Product Name</Form.Label>
@@ -120,13 +120,13 @@ function App() {
               ))}
             </Form.Control>
           </Form.Group>
-          <Button variant="primary" onClick={handleAddProduct}>
+          <Button className="mt-2" variant="primary" onClick={handleAddProduct}>
             Add Product
           </Button>
         </Form>
-      </div>
 
-      <div className="container">
+
+
         <Form>
           <Form.Group controlId="filteredName">
             <Form.Label>Filter by Name</Form.Label>
@@ -167,8 +167,7 @@ function App() {
               ))}
             </Form.Control>
           </Form.Group>
-          <Form.Group controlId="filterStatus">
-            <Form.Label>Filter by Status</Form.Label>
+          <Form.Group className="mt-3" controlId="filterStatus">
             <Form.Check
               type="radio"
               label="All"
@@ -195,7 +194,11 @@ function App() {
             />
           </Form.Group>
         </Form>
+
+
       </div>
+
+      
 
       <div className="container">
         <Table striped bordered hover>
